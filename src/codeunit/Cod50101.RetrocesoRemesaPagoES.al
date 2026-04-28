@@ -200,9 +200,6 @@ codeunit 50101 "Retroceso Remesa Pago ES"
         RemesaPagoReg.Delete(true);
     end;
 
-    // ----------------------------------------------------------------
-    // ACTUALIZAR SITUACIÓN DEL MOVIMIENTO DE PROVEEDOR → Cartera
-    // ----------------------------------------------------------------
     local procedure ActualizarSituacionVLE(EntryNo: Integer)
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -213,9 +210,6 @@ codeunit 50101 "Retroceso Remesa Pago ES"
         VendLedgEntry.Modify(true);
     end;
 
-    // ----------------------------------------------------------------
-    // CALCULAR IMPORTES EN DIVISA LOCAL (DL)
-    // ----------------------------------------------------------------
     local procedure CalcularImportesDL(var DocCartera: Record "Cartera Doc.")
     var
         CurrExchRate: Record "Currency Exchange Rate";

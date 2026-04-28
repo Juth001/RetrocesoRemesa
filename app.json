@@ -1,7 +1,7 @@
 {
   "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "name": "Retroceso Remesa ES",
-  "publisher": "TuEmpresa",
+  "publisher": "BeDynamic",
   "version": "1.0.0.0",
   "brief": "Retroceso de remesas registradas (Localización española)",
   "description": "Permite revertir el registro de una remesa de cobro o de pago en Business Central con localización española (módulo Cartera). Deshace las aplicaciones de clientes/proveedores y los apuntes contables y bancarios generados.",

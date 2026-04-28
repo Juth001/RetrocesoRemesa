@@ -1,9 +1,5 @@
 pageextension 50102 "Cartera Setup Page Ext ES" extends "Cartera Setup"
 {
-    // ============================================================
-    // Extensión de la página "Configuración de Cartera"
-    // Muestra el nuevo campo de control de retroceso de remesas.
-    // ============================================================
     layout
     {
         addlast(content)

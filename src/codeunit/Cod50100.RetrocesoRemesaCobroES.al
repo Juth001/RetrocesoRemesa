@@ -1,24 +1,9 @@
 codeunit 50100 "Retroceso Remesa Cobro ES"
 {
-    // Permisos elevados sobre las tablas de Cartera para poder
-    // insertar, modificar y eliminar independientemente del usuario
     Permissions =
         tabledata "Posted Bill Group" = RMD,
         tabledata "Posted Cartera Doc." = RIMD,
         tabledata "Cartera Doc." = RIMD;
-
-    // ============================================================
-    // RETROCESO DE REMESA DE COBRO REGISTRADA (Módulo Cartera ES)
-    // ============================================================
-    // Proceso inverso al registro de una remesa:
-    //   1. Validar configuración y requisitos de los documentos
-    //   2. Desaplicar movimientos de cliente
-    //   3. Crear asiento contable inverso (diario general)
-    //   4. Mover Posted Cartera Doc. → Cartera Doc. (listos para remesar)
-    //   5. Copiar histórico a Rejected Cartera Doc. ES
-    //   6. Eliminar de Posted Cartera Doc.
-    //   7. Copiar cabecera a Rejected Bill Group ES
-    // ============================================================
 
     procedure RetrocederRemesaCobro(var RemesaRegistrada: Record "Posted Bill Group")
     var
@@ -45,9 +30,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         Message(TextoExito, RemesaRegistrada."No.");
     end;
 
-    // ----------------------------------------------------------------
-    // VALIDAR CONFIGURACIÓN DE CARTERA
-    // ----------------------------------------------------------------
     local procedure ValidarConfiguracionCartera()
     var
         ConfigCartera: Record "Cartera Setup";
@@ -59,10 +41,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
             Error(ErrNoPermitido);
     end;
 
-    // ----------------------------------------------------------------
-    // VALIDAR DOCUMENTOS DE LA REMESA
-    // Solo facturas (no efectos) y no impresas
-    // ----------------------------------------------------------------
     local procedure ValidarDocumentosRemesa(NumRemesa: Code[20]; TipoDocumento: Enum "Cartera Document Type")
     var
         RemesaReg: Record "Posted Bill Group";
@@ -90,10 +68,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
             Error(ErrEfectos, NumRemesa, ListaEfectos);
     end;
 
-    // ----------------------------------------------------------------
-    // OBTENER NÚMERO DE TRANSACCIÓN
-    // 1º Bank Account Ledger Entry, 2º G/L Entry
-    // ----------------------------------------------------------------
     local procedure ObtenerNumTransaccion(NumRemesa: Code[20]; CuentaBancaria: Code[20]) NumTransaccion: Integer
     var
         ApunteBanco: Record "Bank Account Ledger Entry";
@@ -115,9 +89,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         Error(ErrNoEncontrado, NumRemesa);
     end;
 
-    // ----------------------------------------------------------------
-    // DESAPLICAR MOVIMIENTOS DE CLIENTES
-    // ----------------------------------------------------------------
     local procedure DesaplicarClientesPorTransaccion(NumTransaccion: Integer)
     var
         ApunteCliente: Record "Cust. Ledger Entry";
@@ -133,9 +104,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         until ApunteCliente.Next() = 0;
     end;
 
-    // ----------------------------------------------------------------
-    // ASIENTO CONTABLE INVERSO
-    // ----------------------------------------------------------------
     local procedure PostearDiarioInverso(NumRemesa: Code[20]; NumTransaccion: Integer)
     var
         ApunteGL: Record "G/L Entry";
@@ -177,20 +145,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         LimpiarLoteTemporal(NombrePlantilla, NombreLote);
     end;
 
-    // ----------------------------------------------------------------
-    // PROCESAR DOCUMENTOS DE CARTERA
-    // Para cada Posted Cartera Doc. de la remesa:
-    //   1. Insertar en Cartera Doc. (7000002) copiando TODOS los campos
-    //      directamente desde Posted Cartera Doc. (sin Validate).
-    //      - Entry No. = el mismo que el de Posted Cartera Doc.
-    //        (que coincide con el Cust. Ledger Entry No. original)
-    //      - Bill Gr./Pmt. Order No. = '' (sin remesa)
-    //      Así se preservan: Posting Date, Remaining Amount,
-    //      Dimension Set ID, Description, etc.
-    //   2. Copiar al histórico Rejected Cartera Doc. ES
-    //   3. Eliminar de Posted Cartera Doc. (7000003)
-    // Copiar cabecera a Rejected Bill Group ES
-    // ----------------------------------------------------------------
     local procedure ProcesarDocumentosCartera(var RemesaRegistrada: Record "Posted Bill Group")
     var
         DocCarteraPost: Record "Posted Cartera Doc.";
@@ -256,12 +210,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         RemesaRegistrada.Delete(true);
     end;
 
-    // ----------------------------------------------------------------
-    // CALCULAR IMPORTES EN DIVISA LOCAL (DL)
-    // Los campos LCY no existen en Posted Cartera Doc., se calculan:
-    //   · Divisa vacía (local) → DL = importe en divisa
-    //   · Divisa extranjera   → convertir con CurrencyExchangeRate
-    // ----------------------------------------------------------------
     local procedure CalcularImportesDL(var DocCartera: Record "Cartera Doc.")
     var
         CurrExchRate: Record "Currency Exchange Rate";
@@ -281,12 +229,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         DocCartera.Modify(false);
     end;
 
-    // ----------------------------------------------------------------
-    // ACTUALIZAR SITUACIÓN DEL MOVIMIENTO DE CLIENTE → Cartera
-    // Al registrar la remesa el sistema cambió "Document Situation"
-    // del CLE a "Posted Bill Group" (Remesa registrada).
-    // Al retroceder, lo devolvemos a "Cartera".
-    // ----------------------------------------------------------------
     local procedure ActualizarSituacionCLE(EntryNo: Integer)
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
@@ -297,9 +239,6 @@ codeunit 50100 "Retroceso Remesa Cobro ES"
         CustLedgEntry.Modify(true);
     end;
 
-    // ----------------------------------------------------------------
-    // HELPERS: PLANTILLA Y LOTE DE DIARIO
-    // ----------------------------------------------------------------
     local procedure ObtenerPlantillaLote(var NombrePlantilla: Code[10]; var NombreLote: Code[10])
     var
         PlantillaDiario: Record "Gen. Journal Template";
