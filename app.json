@@ -1,0 +1,31 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "name": "Retroceso Remesa ES",
+  "publisher": "TuEmpresa",
+  "version": "1.0.0.0",
+  "brief": "Retroceso de remesas registradas (Localización española)",
+  "description": "Permite revertir el registro de una remesa de cobro o de pago en Business Central con localización española (módulo Cartera). Deshace las aplicaciones de clientes/proveedores y los apuntes contables y bancarios generados.",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [
+    {
+      "id": "63ca2fa4-4f03-4f2b-a480-172fef340d3f",
+      "name": "System Application",
+      "publisher": "Microsoft",
+      "version": "1.0.0.0"
+    }
+  ],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "24.0.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],
+   "runtime": "12.0"
+}
